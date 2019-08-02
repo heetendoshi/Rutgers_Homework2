@@ -1,0 +1,96 @@
+Sub stockdata()
+  Dim ws As Worksheet
+  Dim starting_ws As Worksheet
+  Set starting_ws = ActiveSheet 'remember which worksheet is active in the beginning
+  
+  For Each ws In ThisWorkbook.Worksheets
+    ws.Activate
+    
+      ' Set an initial variable for holding the stock name
+      Dim stock_name As String
+    
+      ' Set an initial variable for holding the total volume
+      Dim stock_volume, begPrice, endPrice, stockPercent, chgPrice As Double
+      stock_volume = 0
+      
+      '
+      
+    
+      ' Keep track of the location for each stock in the summary table
+      Dim Summary_Table_Row As Integer
+      Summary_Table_Row = 2
+      lastrow = Cells(Rows.Count, 1).End(xlUp).Row
+      Cells(1, 9).Value = "Ticker"
+      Cells(1, 10).Value = "Yearly Change"
+      Cells(1, 11).Value = "Percentage Change"
+      Cells(1, 12).Value = "Total Stock Volume"
+      
+      begPrice = Range("F2")
+    
+      
+      ' Loop through all stocks
+      For i = 2 To lastrow
+    
+        ' Check if we are still within the same stock, if it is not...
+        If Cells(i + 1, 1).Value <> Cells(i, 1).Value Then
+    
+          ' Set the stock name
+          stock_name = Cells(i, 1).Value
+    
+          ' Add to the stock volume
+          stock_volume = stock_volume + Cells(i, 7).Value
+          
+           'Set end price
+          endPrice = Cells(i, 6).Value
+    
+          ' Print the stock name in the Summary Table
+          Range("I" & Summary_Table_Row).Value = stock_name
+    
+          ' Print the stock volume to the Summary Table
+          chgPrice = endPrice - begPrice
+          If (endPrice And begPrice) <> 0 Then
+          
+            stockPercent = endPrice / begPrice - 1
+          Else: stockPercent = 0
+          
+          End If
+          
+          Range("J" & Summary_Table_Row).Value = chgPrice
+          Range("J" & Summary_Table_Row).NumberFormat = "#,##.00"
+          Range("K" & Summary_Table_Row).Value = stockPercent
+          Range("K" & Summary_Table_Row).NumberFormat = "0.00%"
+          Range("L" & Summary_Table_Row).Value = stock_volume
+          Range("L" & Summary_Table_Row).NumberFormat = "#,##"
+          
+          If chgPrice > 0 Then
+                Range("J" & Summary_Table_Row).Interior.ColorIndex = 4
+          Else
+                Range("J" & Summary_Table_Row).Interior.ColorIndex = 3
+          End If
+            
+          ' Add one to the summary table row
+          Summary_Table_Row = Summary_Table_Row + 1
+          
+          'Reset beginning stock price
+          begPrice = Cells(i + 1, 6).Value
+          
+          ' Reset the stock volume
+          stock_volume = 0
+    
+        ' If the cell immediately following a row is the same stock
+        Else
+    
+          ' Add to the stock volume
+          stock_volume = stock_volume + Cells(i, 7).Value
+          
+    
+        End If
+    
+      Next i
+  Next
+  
+starting_ws.Activate 'activate the worksheet that was originally active
+
+End Sub
+
+
